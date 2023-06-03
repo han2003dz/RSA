@@ -1,4 +1,9 @@
+import math
 import random
+def ucln(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
 def is_prime(num):
     if num <= 1:
         return False
@@ -37,5 +42,45 @@ def generate_keypair(p, q):
     e = random.randrange(1, phi)
     d = multiplicative_inverse(e, phi)
     return e, n, d, n
-# e, n, d, n2 = generate_keypair(31, 41)
-# print(e, n, d, n2)
+
+# hàm mã hóa
+def encrypt(public_key, plaintext):
+    key, n = public_key
+    cipher = [(ord(char) ** key) % n for char in plaintext]
+    return cipher
+
+# hàm giải mã
+def decrypt(private_key, ciphertext):
+    key, n = private_key
+    plain = [chr((char ** key) % n) for char in ciphertext]
+    return ''.join(plain)
+
+# hàm ký
+def sign(private_key, message):
+    key, n = private_key
+    hashed_message = hash_message(message)
+    signature = pow(hashed_message, key, n)
+    return signature
+
+# hàm xác thực chữ ký
+def verify(public_key, message, signature):
+    key, n = public_key
+    hashed_message = hash_message(message)
+    decrypted_signature = pow(signature, key, n)
+    return hashed_message == decrypted_signature
+# hàm băm
+def hash_message(message):
+    hash_value = 0
+    for char in message:
+        hash_value += ord(char)
+        hash_value ^= (hash_value << 3) ^ (hash_value >> 2)
+    hash_value &= 0xFFFF
+    return hash_value
+
+e, n, d, n2 = generate_keypair(31, 41)
+print(e, n, d, n2)
+
+
+
+
+

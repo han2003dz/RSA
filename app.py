@@ -62,16 +62,11 @@ class RsaDigitalSignature:
                 ], justification='left'),
                 sg.VerticalSeparator(),
                 sg.Column([
-                    [sg.Text("Kiểm tra chữ ký")],
+                    [sg.Text("Văn bản ký")],
                     [sg.Multiline('', size=(45, 5), key='-Input-'), sg.Button('File văn bản', button_color='blue', size=(10, 1))],
-                    # [
-                    #     sg.Column([
-                    #         [sg.Button('Ký', size=(10, 1))]
-                    #     ], justification="center")
-                    # ],
-                    [sg.Text("File chữ ký")],
-                    [sg.Multiline('', size=(45, 5), key='-OutputText-')],
-                    [sg.Button('Kiểm tra chữ ký', button_color='blue')]
+                    [sg.Text("Chữ ký")],
+                    [sg.Multiline('', size=(45, 5), key='-OutputText-'), sg.Button('File chữ ký', button_color='blue', size=(10, 1))],
+                    [sg.Button('Kiểm tra', button_color='blue')],
                 ], justification='top'),
 
             ],
@@ -207,6 +202,8 @@ class RsaDigitalSignature:
                     self.window['-Input-'].update(file_content)
             elif event == "Ký":
                 self.Ky(values)
+            elif event == "Kiểm tra":
+                sg.popup("Thông báo ra màn hình", title="Check RSA", background_color='lightblue', text_color='red')
         self.window.close()
 
 rsa = RsaDigitalSignature()

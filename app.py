@@ -113,6 +113,7 @@ class RsaDigitalSignature:
         e = self.random_prime(phi)
         d = self.multiplicative_inverse(e, phi)
         return e, n, d
+
     # Eculid mở rộng để tìm nghịch đảo nhân modulo
     def multiplicative_inverse(self, e, phi):
         def extended_gcd(a, b):
@@ -151,6 +152,24 @@ class RsaDigitalSignature:
             return '\n'.join(formatted_text)
         else:
             return "Unsupported file format."
+    # 10 -> nhị phân
+    def decimal_to_binary(self, number):
+        if number == 0:
+            return "0"  # Xử lý khi số đầu vào là 0
+        binary = ""
+        while number > 0:
+            binary = str(number % 2) + binary  # Lấy phần dư của số cho 2 và thêm vào phía trước chuỗi kết quả
+            number //= 2  # Chia số cho 2 để lấy phần nguyên
+        return binary
+# `   bình phương và nhân
+    def square_and_multiply(self, value, e, n):
+        result = 1
+        binary_exponent = self.decimal_to_binary(e)
+        for bit in binary_exponent:
+            result = (result ** 2) % n
+            if bit == '1':
+                result = (result * value) % n
+        return result
 
     # hàm băm MD5
     def MD5(self, mess):
@@ -159,7 +178,26 @@ class RsaDigitalSignature:
         hash_object = hashlib.md5(mess_bytes)
         toHex = hash_object.hexdigest()
         return toHex
-
+    #
+    def input(self, values):
+        p = int(values['-P-'])
+        q = int(values['-Q-'])
+        e, n, d = self.generate_keypair(p, q)
+    def MD5toDecimal(self, values):
+        p = int(values['-P-'])
+        q = int(values['-Q-'])
+        e, n, d = self.generate_keypair(p, q)
+        arr = []
+        string = str(self.MD5)
+        for char in string:
+            decimal_element = self.hex_to_decimal(char)
+            res = self.square_and_multiply(decimal_element, e, n)
+            arr.append(res)
+    # chuyển từ hệ 16 -> 10
+    def hex_to_decimal(self, hex_number):
+        decimal = int(hex_number, 16)
+        return decimal
+    # hàm ký
     def Ky(self, values):
         mess = values['-Input-']
         messToHex = self.MD5(mess)
@@ -202,6 +240,7 @@ class RsaDigitalSignature:
                     self.window['-Input-'].update(file_content)
             elif event == "Ký":
                 self.Ky(values)
+
             elif event == "Kiểm tra":
                 sg.popup("Thông báo ra màn hình", title="Check RSA", background_color='lightblue', text_color='red')
         self.window.close()

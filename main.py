@@ -114,10 +114,33 @@ if __name__ == "__main__":
     n = p * q
     print(res)
     print(dcm)
-    print(chu_ky("xin chào các bạn", 19, 17))
-    data = "This is some data to be saved."
-    file_path = "data.txt"  # Đường dẫn đến file muốn lưu
-    save_data_to_file(file_path, data)
+    print(chu_ky("xin chào các bạn", 61, 53))
+    b = "a-b-c-a-d"
+    c = b.split("-")
+    print(c)
+    p = 19  # Giá trị p
+    q = 17  # Giá trị q
+    input_text = "xin chào các bạn"
+    arr = [311, 63, 177, 269, 9, 14, 213, 1, 155, 316, 1, 179, 268, 93, 48, 53, 54, 297, 253, 1, 15, 44, 215, 184, 98,
+           280, 159, 197, 109, 0, 175, 235]
+
+    # Chuyển đổi mảng số nguyên thành chuỗi kết quả
+    result = ""
+    for num in arr:
+        inverse = pow(public_key(p, q), -1, (p - 1) * (q - 1))
+        decrypted_num = PowMod(num, inverse, p * q)
+        hex_str = hex(decrypted_num)[2:]  # Chuyển đổi thành chuỗi số thập lục phân
+        hex_str = hex_str.zfill(2)  # Đảm bảo chuỗi có 2 ký tự
+        result += hex_str
+
+    # So sánh chuỗi kết quả với giá trị băm MD5
+    if result == MD5(input_text):
+        print("Kết quả chính xác:", result)
+    else:
+        print("Kết quả không chính xác.", result)
+
+
+
 
 
 

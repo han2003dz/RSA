@@ -133,11 +133,39 @@ class AppRSA:
         dcm = self.decimal(res)
         elements = dcm.split('-')
         a = []
+        s = ""
         for el in elements:
             if '-' not in el:
                 val = self.PowMod(int(el), self.public_key(p, q), p * q)
                 a.append(val)
-        return a
+        for i in range(len(a)):
+            s += str(a[i]) + '-'
+        return s
+
+    def check_chu_ky(self, values):
+        # inputStr = values[self.Input]
+        # arrSignature = (values[self.Output]).split('-')
+        # hashCheck = self.MD5(inputStr)
+        # newArr = []
+        # for item in arrSignature:
+        #     try:
+        #         num = int(item)
+        #         newArr.append(self.PowMod(num, self.public_key(p, q), p * q))
+        #     except ValueError:
+        #         print("Giá trị không hợp lệ:", item)
+        # checkHash = [self.decimal(item) for item in newArr]
+        # checkHashVerify = "".join(checkHash)
+        # check = hashCheck == checkHashVerify
+        # if check:
+        #     sg.popup("Chữ ký đúng")
+        # else:
+        #     sg.popup("Chữ ký đúng")
+        tmp = values[self.Input]
+        res = values[self.MD5_key]
+        if res == self.MD5(tmp):
+            sg.popup("chữ kí đúng")
+        else:
+            sg.popup("Chữ ký sai")
 
     def Ky(self, values):
         p = int(values[self.P_key])
@@ -292,15 +320,23 @@ class AppRSA:
                 if file_path:
                     file_content = self.read_file(file_path)
                     self.window['Input'].update(file_content)
+            elif event == "File chữ ký":
+                file_path = sg.popup_get_file('Select a file',
+                                              file_types=(('Text Files', '*.txt'),
+                                                          ('Word Documents', '*.docx')))
+                if file_path:
+                    file_content = self.read_file(file_path)
+                    self.window[self.Output].update(file_content)
             elif event == 'Save':
 
                 file_path = sg.popup_get_file('Save File', save_as=True,
                                               file_types=(('Text Files', '*.txt'),
                                                           ('Word Documents', '*.docx')))
                 if file_path:
-                    data = values[self.Input_key]
+                    data = values[self.OutputText_key]
                     rsa.save_data_to_file(file_path, data)
-
+            elif event == "Kiểm tra":
+                self.check_chu_ky(values)
         self.window.close()
 
 

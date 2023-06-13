@@ -1,85 +1,123 @@
 import math
 import random
-def ucln(a, b):
+import hashlib
+import chardet
+from unidecode import unidecode
+import docx
+def gcd(a, b):
     while b != 0:
         a, b = b, a % b
     return a
-def is_prime(num):
-    if num <= 1:
+
+
+def is_prime(n):
+    if n <= 1:
         return False
-    elif num <= 3:
-        return True
-    elif num % 2 == 0 or num % 3 == 0:
-        return False
-    i = 5
-    while i * i <= num:
-        if num % i == 0 or num % (i + 2) == 0:
+    for i in range(2, math.isqrt(n) + 1):
+        if n % i == 0:
             return False
-        i += 6
     return True
-def multiplicative_inverse(e, phi):
+
+
+def phi_n(p, q):
+    if is_prime(p) and is_prime(q):
+        phi = (p - 1) * (q - 1)
+        return phi
+def euclid(e, phi):
     x1, x2, y1, y2 = 1, 0, 0, 1
     a, b = e, phi
-
     while b != 0:
         q = a // b
         a, b = b, a - q * b
         x1, x2 = x2, x1 - q * x2
         y1, y2 = y2, y1 - q * y2
-
     if a == 1:
         return x1 % phi
     else:
         raise ValueError("The multiplicative inverse does not exist")
-def generate_keypair(p, q):
-    if not (is_prime(p) and is_prime(q)):
-        raise ValueError("Both numbers must be prime.")
-    elif p == q:
-        raise ValueError("p and q cannot be equal.")
 
+
+def public_key(p, q):
+    phi = phi_n(p, q)
+    while True:
+        b = random.randrange(2, phi)
+        if gcd(b, phi) == 1:
+            return b
+
+
+def MD5(mess):
+    mess_bytes = mess.encode('utf-8')
+    hash_object = hashlib.md5(mess_bytes)
+    toHex = hash_object.hexdigest()
+    return toHex
+
+
+def PowMod(base, exponent, modulus):
+    if exponent == 0:
+        return 1
+
+    result = 1
+    baseValue = base % modulus
+    exp = exponent
+
+    while exp > 0:
+        if exp % 2 == 1:
+            result = (result * baseValue) % modulus
+
+        baseValue = (baseValue * baseValue) % modulus
+        exp = exp // 2
+
+    if result < 0:
+        result = (result + modulus) % modulus
+
+    return result
+
+
+def decimal(hex):
+    res = ""
+    for val in hex:
+        value = int(val, 16)
+        res = res + str(value) + '-'
+    return res[:-1]
+
+
+def chu_ky(text, p, q):
+    res = MD5(text)
+    dcm = decimal(res)
+    elements = dcm.split('-')
+    a = []
+    for el in elements:
+        if '-' not in el:
+            val = PowMod(int(el), public_key(p, q), p*q)
+            a.append(val)
+    return a
+
+def save_data_to_file(file_path, data):
+    if file_path.endswith('.txt'):
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(data)
+        print(f"File saved successfully: {file_path}")
+    elif file_path.endswith('.docx'):
+        doc = docx.Document()
+        doc.add_paragraph(data)
+        doc.save(file_path)
+        print(f"File saved successfully: {file_path}")
+    else:
+        print("Invalid file format. Please select a valid file type.")
+
+if __name__ == "__main__":
+    p = 17
+    q = 19
+    res = MD5("xin chào các bạn")
+    dcm = decimal(res)
+    e = public_key(p, q)
     n = p * q
-    phi = (p - 1) * (q - 1)
-    e = random.randrange(1, phi)
-    d = multiplicative_inverse(e, phi)
-    return e, n, d, n
-
-# hàm mã hóa
-def encrypt(public_key, plaintext):
-    key, n = public_key
-    cipher = [(ord(char) ** key) % n for char in plaintext]
-    return cipher
-
-# hàm giải mã
-def decrypt(private_key, ciphertext):
-    key, n = private_key
-    plain = [chr((char ** key) % n) for char in ciphertext]
-    return ''.join(plain)
-
-# hàm ký
-def sign(private_key, message):
-    key, n = private_key
-    hashed_message = hash_message(message)
-    signature = pow(hashed_message, key, n)
-    return signature
-
-# hàm xác thực chữ ký
-def verify(public_key, message, signature):
-    key, n = public_key
-    hashed_message = hash_message(message)
-    decrypted_signature = pow(signature, key, n)
-    return hashed_message == decrypted_signature
-# hàm băm
-def hash_message(message):
-    hash_value = 0
-    for char in message:
-        hash_value += ord(char)
-        hash_value ^= (hash_value << 3) ^ (hash_value >> 2)
-    hash_value &= 0xFFFF
-    return hash_value
-
-e, n, d, n2 = generate_keypair(31, 41)
-print(e, n, d, n2)
-
+    print(res)
+    print(dcm)
+    print(chu_ky("xin chào các bạn", 19, 17))
+    data = "This is some data to be saved."
+    file_path = "data.txt"  # Đường dẫn đến file muốn lưu
+    save_data_to_file(file_path, data)
 
 
 

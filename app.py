@@ -185,20 +185,6 @@ class AppRSA:
             res = res + str(value) + '-'
         return res[:-1]
 
-    # def decimal_to_hex(self, number):
-    #     hex_digits = "0123456789ABCDEF"
-    #     hexadecimal = ""
-    #
-    #     if number == 0:
-    #         return "0"
-    #
-    #     while number > 0:
-    #         remainder = number % 16
-    #         hexadecimal = hex_digits[remainder] + hexadecimal
-    #         number = number // 16
-    #
-    #     return hexadecimal
-
     def chu_ky(self, text, p, q, values):
         res = self.MD5(text)
         dcm = self.decimal(res)
@@ -261,24 +247,44 @@ class AppRSA:
             [
                 sg.Column([
                     # row 1
-                    [sg.Text("Tạo Khóa", background_color=self.Primary_Color)],
+                    [
+                        sg.Column([
+                            [sg.Text("Tạo Khóa", background_color=self.Primary_Color)]
+                        ], justification='center', background_color=self.Primary_Color)
+                    ],
                     [sg.VerticalSeparator("None")],
-                    # row 2
-                    [sg.Text("P:", size=(7, 1), justification='center'), sg.Input(key=self.P_key, size=(15, 1))],
-                    # row 3
-                    [sg.Text("Q:", size=(7, 1), justification='center'), sg.Input(key=self.Q_key, size=(15, 1))],
+
+                    [
+                        sg.Column([
+                            # row 2
+                            [sg.Text("P:", background_color=self.Primary_Color),
+                             sg.Input(key=self.P_key, size=(11, None)),
+                             sg.VerticalSeparator(pad=((2, 2), (1, 1)), color='red'),
+                             sg.Text("Q:", background_color=self.Primary_Color),
+                             sg.Input(key=self.Q_key, size=(10, None))
+                             ]
+                        ], background_color=self.Primary_Color)
+                    ],
                     [sg.VerticalSeparator("None")],
                     # row 4
                     [sg.Button('Public key', size=(10, 1), font=("Arial Bold", 10)),
-                     sg.Input(key=self.PublicKey, readonly=True, size=(15, None))
+                     sg.Text("e:", font=("Arial Bold", 12), background_color=self.Primary_Color),
+                     sg.Input(key=self.PublicKey, readonly=True, size=(7, None)),
+                     sg.Text("n:", font=("Arial Bold", 12), background_color=self.Primary_Color),
+                     sg.Input(key='-n-', readonly=True, size=(7, None)),
                      ],
                     # row 5
                     [sg.Button('Private key', size=(10, 1), button_color='red', font=("Arial Bold", 10)),
-                     sg.Input(key=self.PrivateKey, readonly=True, size=(15, None))],
+                     sg.Text("d:", font=("Arial Bold", 12), background_color=self.Primary_Color),
+                     sg.Input(key=self.PrivateKey, readonly=True, size=(7, None)),
+                     sg.Text("n:", font=("Arial Bold", 12), background_color=self.Primary_Color),
+                     sg.Input(key='--n--', readonly=True, size=(7, None)),
+                     ],
                     [sg.VerticalSeparator("None")],
                     [
                         sg.Column([
                             [sg.Button('Tạo', button_color='blue', size=(10, 1), font=("Arial Bold", 12)),
+
                              sg.Button('Reset', button_color="red", size=(10, 1), font=("Arial Bold", 12)),
                              ]
                         ], justification="center", background_color=self.Primary_Color)
@@ -289,7 +295,7 @@ class AppRSA:
                     #  ],
                     [
                         sg.Column([
-                            [sg.Button('Random Key', button_color='blue', font=("Arial Bold", 12), size=(10, 1))]
+                            [sg.Button('Random(P, Q)', button_color='blue', font=("Arial Bold", 12), size=(10, 1))]
                         ], justification='center', background_color=self.Primary_Color)
                     ]
                 ], vertical_alignment='top', background_color=self.Primary_Color),
@@ -350,7 +356,7 @@ class AppRSA:
                 ], vertical_alignment='top', background_color=self.Primary_Color),
             ],
         ]
-        self.window = sg.Window('RSA Digital Signature', self.layout, size=(920, 550),
+        self.window = sg.Window('RSA Digital Signature', self.layout, size=(1000, 550),
                                 background_color=self.Primary_Color)
         self.is_running = True
         self.default_values = {
@@ -388,13 +394,15 @@ class AppRSA:
                 public = e
                 private = d
                 self.window[self.PublicKey].update(public)
+                self.window['-n-'].update(n)
                 self.window[self.PrivateKey].update(private)
+                self.window['--n--'].update(n)
                 print(public)
                 print(private)
             elif event == 'Reset':
                 for key in self.default_values:
                     self.window[key].update(self.default_values[key])
-            elif event == 'Random Key':
+            elif event == 'Random(P, Q)':
                 p = self.random_prime()
                 q = self.random_prime()
                 self.window[self.P_key].update(p)
@@ -405,11 +413,11 @@ class AppRSA:
                                                           ('Word Documents', '*.docx')))
                 if file_path:
                     file_content = self.read_file(file_path)
-                    colored_content = self.read_text_color(file_path)
+                    # colored_content = self.read_text_color(file_path)
                     print(self.read_text_color(file_path))
                     self.window['-Input-'].update(file_content)
-                    self.window['-Input-'].update(value=colored_content, background_color='#FFFFFF',
-                                                   text_color=self.read_text_color(file_path))
+                    # self.window['-Input-'].update(value=colored_content, background_color='#FFFFFF',
+                    #                                text_color=self.read_text_color(file_path))
             elif event == "Ký":
                 self.Ky(values)
             elif event == "Chuyển":
@@ -447,3 +455,5 @@ class AppRSA:
 
 rsa = AppRSA()
 rsa.run()
+
+
